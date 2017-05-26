@@ -45,13 +45,13 @@ server.register(require('inert'), (err) => {
   });
 });
 
-pool.query('SELECT $1::int AS number', ['2'], function(err, res) {
-  if(err) {
-    return console.error('error running query', err);
-  }
+// pool.query('SELECT $1::int AS number', ['2'], function(err, res) {
+//   if(err) {
+//     return console.error('error running query', err);
+//   }
  
-  console.log('number:', res.rows[0].number);
-});
+//   console.log('number:', res.rows[0].number);
+// });
 
 server.route({
   method: 'GET',
@@ -67,6 +67,21 @@ server.route({
   //   reply({ans: Calculator.sbtract(num1, num2)}).code(200);
   }
 });
+
+server.route({
+  method: 'POST',
+  path: '/insert',
+  handler: function (request, reply) {
+    pool.query('INSERT INTO entry(id, val) VALUES($1,$2)', [request.payload.id,0], function(err, res) {
+        if(err) {
+          return console.error('error running query', err);
+      }
+      //console.log('number:', res.rows[0].number);
+    });
+    reply("RITEEK");
+    }
+});
+
 
 
 server.route({
