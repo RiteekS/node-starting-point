@@ -1,0 +1,99 @@
+<html>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js">
+	
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#submit').click(function(){
+			console.log(5);
+			$.ajax({
+				url : '/calculator/',
+				type: 'GET',
+				data: { operation: $('#operation').val(),
+				        num1: $('#value1').val(),
+				        num2: $('#value2').val() 
+				      },
+                datatype: 'json',
+                success : function(data){
+                	$('#result').val(data.ans);
+                	console.log(data.ans);
+                }
+			});
+		
+
+	});
+
+	// 	$('#create_cal').click(function(){
+
+	// 		var txt1 = "<p>Text.</p>";               // Create element with HTML  
+		    
+	// 	    $("body").append('<br><br><br><br><br><div class="row"> <div class="col-xs-2"> <input type="text" class="form-control" name="value1" id="value1"> </div> <div class="col-xs-1"> </div> <div class="col-xs-2"> <select class="form-control" name = "operation" id="operation"> <option selected="selected" value="sum">+</option> <option value="subtract">-</option> <option value="multiply">*</option> <option value="divide">/</option> </select> </div> <div class="col-xs-1"> </div> <div class="col-xs-2"> <input type="text" class="form-control" name="value2" id="value2"> </div> </div> <div class="row"> <div class="col-xs-3"> </div> <div class="col-xs-2" style="text-align: center;"> <br> <button id="submit" class="btn btn-info" value="Submit">Submit </button> </div> </div> <div class="col-xs-3"> </div> <div class="col-xs-2"> <input type="text" class="form-control" id="result"> </div>');      // Append the new elements 
+		
+
+	// });
+
+	});
+
+</script>
+<body>
+<br>
+<br>
+
+	<!-- <button id="create_cal" class="btn btn-primary">Create Calculator</button> -->
+
+	<br>
+	<br>
+
+	<div class="row">
+		<div class="col-xs-2">
+			<input type="text" class="form-control" name="value1" id="value1">
+		</div>
+
+		<div class="col-xs-1">
+		</div>
+
+		<div class="col-xs-2">
+		<select class="form-control" name = "operation" id="operation">
+		    <option selected="selected" value="sum">+</option>
+		    <option value="subtract">-</option>
+		    <option value="multiply">*</option>
+		    <option value="divide">/</option>
+		  </select>
+		</div>
+
+		<div class="col-xs-1">
+		</div>
+
+		<div class="col-xs-2">
+			<input type="text" class="form-control" name="value2" id="value2">
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-3">
+		</div>
+
+		<div class="col-xs-2" style="text-align: center;">
+		<br>
+		<button id="submit" class="btn btn-info" value="Submit">Submit
+		</button>
+		
+		</div>
+	</div>
+	
+
+
+
+	<div class="col-xs-3">
+		</div>
+	<div class="col-xs-2">
+		<input type="text" class="form-control" id="result">
+	</div>
+
+
+	
+</body>
+</html>

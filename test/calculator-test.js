@@ -137,24 +137,4 @@ describe('Calculator', function() {
       assert.equal(4, Calculator.sqr(-2));
     });
    });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
