@@ -1,96 +1,105 @@
-// var Calculator = require('./src/calculator');
-
-// (() => {
-//   var operation = process.argv[3];
-//   var operand1 = Number(process.argv[2]);
-//   var operand2 = Number(process.argv[4]);
-//   // [,,operand1,operation,operand2] = process.argv
-//   switch(operation){
-//     case '+':
-//     // console.log(Calculator.sum(+operand1, +operand2));
-//     console.log(Calculator.sum(operand1, operand2));
-//     break;
-//     default:
-//     console.log('Invalid operation!');
-//   }
-// })();
 'use strict';
 
+const Path = require('path');
 const Hapi = require('hapi');
 var Calculator = require('./src/calculator');
 const pool = require('./lib/db');
+var corsHeaders = require('hapi-cors-headers');
 
-const server = new Hapi.Server();
+
+const server = new Hapi.Server({
+  connections: {
+    routes: {
+      files : {
+        relativeTo: Path.join(__dirname, 'Public')
+      } 
+    }
+  }
+});
+
+
 server.connection({ port: 3001, host: 'localhost' });
-
-// server.route({
-//   method: 'GET',
-//   path: '/',
-//   handler: function (request, reply) {
-//   reply('Hello, world!');
-//   }
-// });
 
 server.register(require('inert'), (err) => {
   if (err) {
     throw err;
   }
 
-  server.route({
-    method: 'GET',
-    path: '/',
-    handler: (request, reply) => {
-        reply.file('./index.html');
-    }
-  });
+  server.route(
+  [
+      {
+        method: 'GET',
+        path: '/calculator',
+        handler: function (request, reply) {
+          var op = request.query.operation; 
+          var num1 = Number(request.query.num1);
+          var id = Number(request.query.id);
+          //console.log(op + num + id);
+          pool.query('SELECT val from entry where id=$1', [id], function(err, res){
+            if(err)
+            {
+              return console.log('error running query', err);
+            }
+            var temp = res.rows[0].val;
+            switch(op){
+              case 'sum':
+                var result = Calculator.sum(temp, num1);
+                break;
+              case 'subtract':
+                var result = Calculator.sub(temp,num1);
+                break;
+              case 'multiply':
+                var result = Calculator.mult(temp, num1);
+                break;
+              case 'divide':
+                var result = Calculator.div(temp, num1);
+                break;
+            }
+          
+            console.log(result);
+            pool.query('UPDATE entry set val = $1 where id = $2', [result, id], function (err,res){
+              if(err)
+              {
+              return console.log('error running query', err);
+              }
+            });
+            reply({"ans": result});          
+           });
+          }
+      },
+      {
+        method: 'POST',
+        path: '/create',
+        handler: function (request, reply) {
+          console.log('in create');
+          pool.query('SELECT id from entry order by id desc limit 1','',function(err,res){
+            if(err)
+            {
+              return console.log('error running query', err);
+            }
+             var temp = res.rows[0].id + 1;
+             console.log(temp);
+          
+
+            pool.query('INSERT INTO entry(id, val) VALUES($1,$2)', [temp,0], function(err, res) {
+              if(err) {
+                return console.error('error running query', err);
+              }
+              //console.log('number:', res.rows[0].number);
+              reply({
+                      val: 0,
+                      id: temp
+              });
+            });
+
+          });
+          
+          }
+      },
+  ]);
 });
 
-// pool.query('SELECT $1::int AS number', ['2'], function(err, res) {
-//   if(err) {
-//     return console.error('error running query', err);
-//   }
- 
-//   console.log('number:', res.rows[0].number);
-// });
-
-server.route({
-  method: 'GET',
-  path: '/calculator/',
-  handler: function (request, reply) {
-      // var num1 = num.spilt('/');
-  var op = request.query.operation; 
-  var num1 = Number(request.query.num1);
-  var num2 = Number(request.query.num2);
-  if(op=='sum')
-    reply({ans: Calculator.sum(num1, num2)}).code(200);
-  // else if(op=='subtract')
-  //   reply({ans: Calculator.sbtract(num1, num2)}).code(200);
-  }
-});
-
-server.route({
-  method: 'POST',
-  path: '/insert',
-  handler: function (request, reply) {
-    pool.query('INSERT INTO entry(id, val) VALUES($1,$2)', [request.payload.id,0], function(err, res) {
-        if(err) {
-          return console.error('error running query', err);
-      }
-      //console.log('number:', res.rows[0].number);
-    });
-    reply("RITEEK");
-    }
-});
-
-
-
-server.route({
-  method: 'GET',
-  path: '/{name}',
-  handler: function (request, reply) {
-  reply('Hello, ' + request.params.name+ '!');
-  }
-});
+server.ext('onPreResponse', corsHeaders);
 
 server.start((err) => {
   if (err) {
@@ -98,3 +107,7 @@ server.start((err) => {
   }
   console.log(`Server running at: ${server.info.uri}`);
 });
+
+
+
+

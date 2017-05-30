@@ -1,5 +1,7 @@
 var assert = require('assert');
+
 var Calculator = require('../src/calculator');
+
 describe('Calculator', function() {
 
   describe('sum', function() {
